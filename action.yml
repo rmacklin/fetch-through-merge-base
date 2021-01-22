@@ -1,0 +1,10 @@
+name: 'Fetch through merge-base'
+description: 'Fetch PR commits through the merge-base'
+runs:
+  using: "composite"
+  steps: 
+    - run: ${{ github.action_path }}/fetch_through_merge_base.sh
+      shell: bash
+      env:
+        BASE_REF: ${{ github.base_ref }}
+        HEAD_REF: ${{ github.head_ref }}
