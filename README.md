@@ -52,3 +52,35 @@ jobs:
           base_ref: main
           head_ref: ${{ github.sha }}
 ```
+
+## More details
+
+The default behavior of [`actions/checkout`] v2 is to only fetch a single commit
+because 1) often that commit is all that's needed and 2) fetching only one
+commit is much faster than fetching everything, especially in large
+repositories. If more history is needed, the `fetch-depth` input can be passed
+to `actions/checkout` to fetch a number of commits up to the current commit (or
+all history for all branches and tags via `fetch-depth: 0`). However, there's no
+"fetch all commits within the current pull request" option (the depth of which
+can vary greatly from one pull request to another). That's what this action
+aims to provide!
+
+The way this action works is by iteratively [deepening] the history of the
+shallow clone until the common ancestor of the pull request source branch and
+target branch (i.e. the [`merge-base`]) has been found. By default, the action
+uses `--deepen=10`, but this can be tuned through the `deepen_length` action
+input to optimize the `git fetch` calls for a given repository. The tradeoff of
+setting a large `deepen_length` is that the action may fetch more unnecessary
+commits when running on a pull request that only has a few commits. On the other
+hand, setting a small `deepen_length` may lead to many `git fetch` calls in a
+row in order to fetch all the commits of a large PR, with each call incurring
+additional overhead.
+
+Note: For small repositories, `actions/checkout` with `fetch-depth: 0` may
+finish quickly, so feel free to just use that initially. This action can be
+swapped in later when the repository has grown to the point where fetching the
+full history is slow.
+
+[`actions/checkout`]: https://github.com/actions/checkout
+[deepening]: https://git-scm.com/docs/git-fetch#Documentation/git-fetch.txt---deepenltdepthgt
+[`merge-base`]: https://git-scm.com/docs/git-merge-base
