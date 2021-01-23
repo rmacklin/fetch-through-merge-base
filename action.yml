@@ -1,10 +1,15 @@
 name: 'Fetch through merge-base'
 description: 'Fetch PR commits through the merge-base'
+inputs:
+  base_ref:
+    default: ${{ github.base_ref }}
+  head_ref:
+    default: ${{ github.head_ref }}
 runs:
   using: "composite"
   steps: 
     - run: ${{ github.action_path }}/fetch_through_merge_base.sh
       shell: bash
       env:
-        BASE_REF: ${{ github.base_ref }}
-        HEAD_REF: ${{ github.head_ref }}
+        BASE_REF: ${{ inputs.base_ref }}
+        HEAD_REF: ${{ inputs.head_ref }}
